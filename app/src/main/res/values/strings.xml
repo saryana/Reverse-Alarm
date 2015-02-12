@@ -2,7 +2,8 @@
 <resources>
 
     <string name="app_name">Reverse Alarm</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="quick_description">Enter the time you wish to wake up at and we will figure out what time for you to go to bed.
+        Or, if you are going to bed now, we will let you know what time to set your alarm.</string>
     <string name="action_settings">Settings</string>
 
 </resources>
