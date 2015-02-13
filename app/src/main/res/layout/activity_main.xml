@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/description"
         android:layout_centerHorizontal="true"
+        android:timePickerMode="spinner"
         />
 
     <ListView android:id="@+id/suggested_times"

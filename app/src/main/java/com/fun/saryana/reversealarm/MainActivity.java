@@ -1,5 +1,6 @@
 package com.fun.saryana.reversealarm;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -21,6 +22,9 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
     // The adapter used by the view
     private TimeAdapter mAdapter;
 
+    /**
+     * Set up the initial list and attach the on change listeners
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +58,7 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -78,14 +83,16 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
      * @param time Time user wants to wake up
      */
     private void updateTimes(int time) {
-        int minNumberOfSleepCycles = 4;
+        int minNumberOfSleepCycles = 3;
         int maxNumberOfSleepCycles = 7;
         int sleepCycleDuration = 90;
         mTimes.clear();
         for (int i = minNumberOfSleepCycles; i <= maxNumberOfSleepCycles; i++) {
-            Log.i(TAG, "" + time);
-            time -= sleepCycleDuration;
-            mTimes.add(time);
+            int sleepTime = time - (i * sleepCycleDuration);
+            if (sleepTime < 0) {
+                sleepTime = (24 * 60) + sleepTime;
+            }
+            mTimes.add(sleepTime);
         }
     }
 }
