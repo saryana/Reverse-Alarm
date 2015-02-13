@@ -2,18 +2,22 @@ package com.fun.saryana.reversealarm;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.AlarmClock;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity implements TimePicker.OnTimeChangedListener {
+public class MainActivity extends ActionBarActivity implements TimePicker.OnTimeChangedListener, AdapterView.OnItemClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -39,6 +43,7 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
 
         ListView suggestedTimes = (ListView) findViewById(R.id.suggested_times);
         suggestedTimes.setAdapter(mAdapter);
+        suggestedTimes.setOnItemClickListener(this);
     }
 
 
@@ -94,5 +99,26 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
             }
             mTimes.add(sleepTime);
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        TextView timeValueView = (TextView) view.findViewById(R.id.time_value);
+        String timeString = timeValueView.getText().toString();
+        String[] timeSplit = timeString.split(" ");
+        int hours = Integer.valueOf(timeSplit[0].split(":")[0]);
+        int minutes = Integer.valueOf(timeSplit[0].split(":")[1]);
+
+        boolean isPM = timeSplit[1].equals("PM");
+        if (isPM && hours != 12) {
+            hours += 12;
+        } else if (!isPM && hours == 12) {
+            hours = 0;
+        }
+        Log.i(TAG, "Sending intent with value " + hours + " " + minutes);
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+        intent.putExtra(AlarmClock.EXTRA_HOUR, hours);
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, minutes);
+        startActivity(intent);
     }
 }

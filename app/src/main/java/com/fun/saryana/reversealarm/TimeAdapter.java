@@ -60,8 +60,8 @@ public class TimeAdapter extends ArrayAdapter<Integer> {
         boolean isPM = hours >= 12;
         if (isPM) {
             hours -= 12;
-            hours = hours == 0 ? 12 : hours;
         }
+        hours = hours == 0 ? 12 : hours;
         int minutes = time % 60;
 
         return String.format("%d:%02d %s", hours, minutes, isPM ? "PM" : "AM");
