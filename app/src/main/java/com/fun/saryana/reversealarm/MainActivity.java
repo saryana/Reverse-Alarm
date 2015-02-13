@@ -1,6 +1,7 @@
 package com.fun.saryana.reversealarm;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.support.v7.app.ActionBarActivity;
@@ -9,15 +10,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.ToggleButton;
+
+import com.fun.saryana.reversealarm.util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity implements TimePicker.OnTimeChangedListener, AdapterView.OnItemClickListener {
+public class MainActivity extends ActionBarActivity implements TimePicker.OnTimeChangedListener, AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -25,6 +30,8 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
     private List<Integer> mTimes;
     // The adapter used by the view
     private TimeAdapter mAdapter;
+    // Time picker being shown
+    private TimePicker mTimePicker;
 
     /**
      * Set up the initial list and attach the on change listeners
@@ -34,18 +41,140 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TimePicker timePicker = (TimePicker) findViewById(R.id.time_picker);
-        timePicker.setOnTimeChangedListener(this);
+        // Handle the TimePicker
+        mTimePicker = (TimePicker) findViewById(R.id.time_picker);
+        mTimePicker.setOnTimeChangedListener(this);
 
         mTimes = new ArrayList<>();
-        updateTimes(timePicker.getCurrentHour() * 60 + timePicker.getCurrentMinute());
+
+        updateSleepAtText();
+        updateTimes();
+
         mAdapter = new TimeAdapter(this, R.layout.time_value, mTimes);
 
+        // Handle the ListView
         ListView suggestedTimes = (ListView) findViewById(R.id.suggested_times);
         suggestedTimes.setAdapter(mAdapter);
         suggestedTimes.setOnItemClickListener(this);
+
+        // Handle the toggle button
+        ToggleButton toggleButton = (ToggleButton) findViewById(R.id.wake_up_switch);
+        toggleButton.setOnCheckedChangeListener(this);
     }
 
+    /**
+     * Updates the text being shown to the user to wake up at or go to bed at
+     */
+    private void updateSleepAtText() {
+        Resources res = getResources();
+        TextView welcomeText = (TextView) findViewById(R.id.wake_sleep_text);
+
+        // Get the time from the time picker
+        TimePicker timePicker = (TimePicker) findViewById(R.id.time_picker);
+        int time = timePicker.getCurrentHour() * 60 + timePicker.getCurrentMinute();
+
+        boolean wakeUpTimes = ((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
+
+
+        int resource = wakeUpTimes ? R.string.wake_up_at_text : R.string.go_to_bed_at_text;
+
+        welcomeText.setText(String.format(res.getString(resource), TimeUtil.format24to12(time)));
+    }
+
+
+    /**
+     * Listener for when the user has changed the time
+     * @param view TimePicker on page
+     * @param hourOfDay Hour on the current clock
+     * @param minute Minute on the current clock
+     */
+    @Override
+    public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+        Log.i(TAG, "User selected time of " + hourOfDay + ":" + minute);
+        updateSleepAtText();
+        updateTimes();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Updates the times that the user should go to bed
+     *
+     * @param time Time user wants to wake up
+     */
+    private void updateTimes() {
+        int time = getTime();
+        boolean wakeUpTimes = ((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
+        int minNumberOfSleepCycles = 3;
+        int maxNumberOfSleepCycles = 7;
+        int sleepCycleDuration = 90;
+        mTimes.clear();
+        for (int i = minNumberOfSleepCycles; i <= maxNumberOfSleepCycles; i++) {
+            int sleepTime;
+            if (!wakeUpTimes) {
+                sleepTime = time - (i * sleepCycleDuration);
+                if (sleepTime < 0) {
+                    sleepTime = (24 * 60) + sleepTime;
+                }
+            } else {
+                sleepTime = time + (i * sleepCycleDuration);
+                int hours = sleepTime / 60;
+                int minutes = sleepTime - (hours * 60);
+                if (minutes >= 60) {
+                    hours += minutes / 60;
+                    minutes %= 60;
+                }
+                if (hours >= 24) {
+                    hours %= 24;
+                }
+                sleepTime = hours * 60 + minutes;
+            }
+            mTimes.add(sleepTime);
+        }
+    }
+
+    /**
+     * @return Current time on clock in mintues
+     */
+    public int getTime() {
+        return mTimePicker.getCurrentHour() * 60 + mTimePicker.getCurrentMinute();
+    }
+
+    /**
+     * Set up on click listener for when the
+     * user clicks on a time it get added to their alarms
+     */
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        // Don't allow user to set alarm if it is showing wake up times
+        ToggleButton button = (ToggleButton) findViewById(R.id.wake_up_switch);
+        if (button.isActivated()) return;
+
+        TextView timeValueView = (TextView) view.findViewById(R.id.time_value);
+        String timeString = timeValueView.getText().toString();
+
+        // Grab the hours and minutes from the string
+        String[] timeSplit = timeString.split(" ");
+        boolean isPM = timeSplit[1].equals("PM");
+
+        int hours = TimeUtil.getHoursFrom12to24(timeSplit[0], isPM);
+        int minutes = TimeUtil.getMinutesFrom12(timeSplit[0]);
+
+        Log.i(TAG, "Sending intent with value " + hours + " " + minutes);
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+        intent.putExtra(AlarmClock.EXTRA_HOUR, hours);
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, minutes);
+        startActivity(intent);
+    }
+
+    /**
+     * On a toggle switch we get the appropriate times
+     */
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        updateSleepAtText();
+        updateTimes();
+        mAdapter.notifyDataSetChanged();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -68,65 +197,5 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Listener for when the user has changed the time
-     * @param view TimePicker on page
-     * @param hourOfDay Hour on the current clock
-     * @param minute Minute on the current clock
-     */
-    @Override
-    public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-        Log.i(TAG, "User selected time of " + hourOfDay + ":" + minute);
-        updateTimes(hourOfDay*60+minute);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    /**
-     * Updates the times that the user should go to bed
-     * @param time Time user wants to wake up
-     */
-    private void updateTimes(int time) {
-        int minNumberOfSleepCycles = 3;
-        int maxNumberOfSleepCycles = 7;
-        int sleepCycleDuration = 90;
-        mTimes.clear();
-        for (int i = minNumberOfSleepCycles; i <= maxNumberOfSleepCycles; i++) {
-            int sleepTime = time - (i * sleepCycleDuration);
-            if (sleepTime < 0) {
-                sleepTime = (24 * 60) + sleepTime;
-            }
-            mTimes.add(sleepTime);
-        }
-    }
-
-    /**
-     * Set up on click listener for when the user clicks on a time it get added to their alarms
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        TextView timeValueView = (TextView) view.findViewById(R.id.time_value);
-        String timeString = timeValueView.getText().toString();
-
-        // Grab the hours and minutes from the string
-        String[] timeSplit = timeString.split(" ");
-        int hours = Integer.valueOf(timeSplit[0].split(":")[0]);
-        int minutes = Integer.valueOf(timeSplit[0].split(":")[1]);
-        // AM/PM decides if we do operations on it
-        boolean isPM = timeSplit[1].equals("PM");
-
-        // 12pm turns to 2400 which is am, don't want that
-        if (isPM && hours != 12) {
-            hours += 12;
-        // 12am needs to be 0000
-        } else if (!isPM && hours == 12) {
-            hours = 0;
-        }
-        Log.i(TAG, "Sending intent with value " + hours + " " + minutes);
-        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-        intent.putExtra(AlarmClock.EXTRA_HOUR, hours);
-        intent.putExtra(AlarmClock.EXTRA_MINUTES, minutes);
-        startActivity(intent);
     }
 }

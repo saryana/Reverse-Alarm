@@ -6,4 +6,7 @@
         Or, if you are going to bed now, we will let you know what time to set your alarm.</string>
     <string name="action_settings">Settings</string>
 
+    <string name="go_to_bed_at_text">If I wake up at %s I should go to bed at…</string>
+    <string name="wake_up_at_text">If I go to bed at %s I should wake up at…</string>
+
 </resources>

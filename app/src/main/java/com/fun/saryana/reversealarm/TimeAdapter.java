@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.fun.saryana.reversealarm.util.TimeUtil;
+
 import java.util.List;
 
 /**
@@ -45,27 +47,8 @@ public class TimeAdapter extends ArrayAdapter<Integer> {
         TextView timeDisplay = (TextView) contextView.findViewById(R.id.time_value);
         TextView numSleepCycles = (TextView) contextView.findViewById(R.id.number_of_sleep_cycles);
         numSleepCycles.setText(String.valueOf(position + 3));
-        timeDisplay.setText(formatTime(time));
+        timeDisplay.setText(TimeUtil.format24to12(time));
 
         return contextView;
     }
-
-    /**
-     * Formats the time in the proper format for displaying
-     * @param time Suggested time for the user
-     * @return Time formatted in HH:MM AM/PM
-     */
-    private String formatTime(int time) {
-        int hours = time / 60;
-        boolean isPM = hours >= 12;
-        if (isPM) {
-            hours -= 12;
-        }
-        hours = hours == 0 ? 12 : hours;
-        int minutes = time % 60;
-
-        return String.format("%d:%02d %s", hours, minutes, isPM ? "PM" : "AM");
-    }
-
-
 }

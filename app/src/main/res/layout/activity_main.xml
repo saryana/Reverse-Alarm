@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         />
 
+
     <TimePicker android:id="@+id/time_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,8 +24,22 @@
         android:timePickerMode="spinner"
         />
 
-    <ListView android:id="@+id/suggested_times"
+
+    <ToggleButton android:id="@+id/wake_up_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOn="Sleep Times"
+        android:textOff="Wake up Times"
         android:layout_below="@+id/time_picker"
+        android:layout_centerHorizontal="true" />
+
+    <TextView android:id="@+id/wake_sleep_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wake_up_switch" />
+
+    <ListView android:id="@+id/suggested_times"
+        android:layout_below="@+id/wake_sleep_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
