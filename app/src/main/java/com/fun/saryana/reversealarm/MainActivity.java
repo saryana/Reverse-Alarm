@@ -101,17 +101,25 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
         }
     }
 
+    /**
+     * Set up on click listener for when the user clicks on a time it get added to their alarms
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         TextView timeValueView = (TextView) view.findViewById(R.id.time_value);
         String timeString = timeValueView.getText().toString();
+
+        // Grab the hours and minutes from the string
         String[] timeSplit = timeString.split(" ");
         int hours = Integer.valueOf(timeSplit[0].split(":")[0]);
         int minutes = Integer.valueOf(timeSplit[0].split(":")[1]);
-
+        // AM/PM decides if we do operations on it
         boolean isPM = timeSplit[1].equals("PM");
+
+        // 12pm turns to 2400 which is am, don't want that
         if (isPM && hours != 12) {
             hours += 12;
+        // 12am needs to be 0000
         } else if (!isPM && hours == 12) {
             hours = 0;
         }
