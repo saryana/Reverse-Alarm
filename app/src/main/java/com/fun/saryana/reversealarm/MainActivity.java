@@ -76,7 +76,7 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
         boolean wakeUpTimes = ((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
 
 
-        int resource = wakeUpTimes ? R.string.wake_up_at_text : R.string.go_to_bed_at_text;
+        int resource = wakeUpTimes ? R.string.go_to_bed_at_text : R.string.wake_up_at_text;
 
         welcomeText.setText(String.format(res.getString(resource), TimeUtil.format24to12(time)));
     }
@@ -103,7 +103,7 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
      */
     private void updateTimes() {
         int time = getTime();
-        boolean wakeUpTimes = ((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
+        boolean wakeUpTimes = !((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
         int minNumberOfSleepCycles = 3;
         int maxNumberOfSleepCycles = 7;
         int sleepCycleDuration = 90;

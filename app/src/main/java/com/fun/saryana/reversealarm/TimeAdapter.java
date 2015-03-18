@@ -35,6 +35,13 @@ public class TimeAdapter extends ArrayAdapter<Integer> {
         mResource = resource;
     }
 
+    /**
+     * Handles each individual view that will be in the list view
+     * @param position Position of the view
+     * @param contextView View we are handling
+     * @param parent Parent view
+     * @return Updated view
+     */
     @Override
     public View getView(int position, View contextView, ViewGroup parent) {
         Integer time = getItem(position);
