@@ -1,8 +1,10 @@
 package com.fun.saryana.reversealarm;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.AlarmClock;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -29,6 +31,12 @@ public class MainActivity
                             CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    // WHERE DO I PUT THESE?
+    public static final String MIN_CYCLES_TEXT = "minNumberOfSleepCycles";
+    public static final String MAX_CYCLES_TEXT = "maxNumberOfSleepCycles";
+    public static final String SLEEP_CYCLE_DURATION_TEXT = "sleepCycleDuration";
+
 
     /* These need to get moved to a preference later */
     // Minimum number of sleep cycles to see
@@ -57,10 +65,10 @@ public class MainActivity
         // Handle the TimePicker
         mTimePicker = (TimePicker) findViewById(R.id.time_picker);
         mTimePicker.setOnTimeChangedListener(this);
-
-        MIN_CYCLES = 3;
-        MAX_CYCLES = 6;
-        SLEEP_CYCLE_DURATION = 90;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        MIN_CYCLES = sharedPreferences.getInt(MIN_CYCLES_TEXT, 4);
+        MAX_CYCLES = sharedPreferences.getInt(MAX_CYCLES_TEXT, 7);
+        SLEEP_CYCLE_DURATION = sharedPreferences.getInt(SLEEP_CYCLE_DURATION_TEXT, 90);
 
         mTimes = new ArrayList<>();
 
@@ -209,7 +217,7 @@ public class MainActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            startActivity(new Intent(this, SettingActivityTemp.class));
             return true;
         }
 

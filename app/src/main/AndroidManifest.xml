@@ -22,6 +22,10 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
+        <activity
+            android:name=".SettingActivityTemp"
+            android:label="@string/title_activity_setting_activity_temp" >
+        </activity>
     </application>
 
 </manifest>

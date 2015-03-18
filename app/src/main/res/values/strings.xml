@@ -8,5 +8,10 @@
 
     <string name="go_to_bed_at_text">If I wake up at %s I should go to bed at…</string>
     <string name="wake_up_at_text">If I go to bed at %s I should wake up at…</string>
+    <string name="title_activity_setting_activity_temp">SettingActivityTemp</string>
+
+    <string name="min_sleep_cycles_text">Minimum number of sleep cycles, default 3</string>
+    <string name="max_sleep_cycles_text">Maximum number of sleep cycles, default 7</string>
+    <string name="sleep_cycles_duration_text">Sleep cycles duration, default 90 minutes</string>
 
 </resources>
