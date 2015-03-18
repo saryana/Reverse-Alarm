@@ -22,9 +22,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity implements TimePicker.OnTimeChangedListener, AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener {
+public class MainActivity
+                    extends ActionBarActivity implements
+                            TimePicker.OnTimeChangedListener,
+                            AdapterView.OnItemClickListener,
+                            CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /* These need to get moved to a preference later */
+    // Minimum number of sleep cycles to see
+    public static int MIN_CYCLES;
+    // Max number of sleep cycles to see
+    public static int MAX_CYCLES;
+    // Length of user's sleep cycle (in minutes);
+    public static int SLEEP_CYCLE_DURATION;
+
 
     // Holds the times
     private List<Integer> mTimes;
@@ -44,6 +57,10 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
         // Handle the TimePicker
         mTimePicker = (TimePicker) findViewById(R.id.time_picker);
         mTimePicker.setOnTimeChangedListener(this);
+
+        MIN_CYCLES = 3;
+        MAX_CYCLES = 6;
+        SLEEP_CYCLE_DURATION = 90;
 
         mTimes = new ArrayList<>();
 
@@ -73,10 +90,9 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
         TimePicker timePicker = (TimePicker) findViewById(R.id.time_picker);
         int time = timePicker.getCurrentHour() * 60 + timePicker.getCurrentMinute();
 
-        boolean wakeUpTimes = ((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
+        boolean wakeUpTimes = !((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
 
-
-        int resource = wakeUpTimes ? R.string.go_to_bed_at_text : R.string.wake_up_at_text;
+        int resource = wakeUpTimes ? R.string.wake_up_at_text : R.string.go_to_bed_at_text ;
 
         welcomeText.setText(String.format(res.getString(resource), TimeUtil.format24to12(time)));
     }
@@ -104,19 +120,17 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
     private void updateTimes() {
         int time = getTime();
         boolean wakeUpTimes = !((ToggleButton) findViewById(R.id.wake_up_switch)).isChecked();
-        int minNumberOfSleepCycles = 3;
-        int maxNumberOfSleepCycles = 7;
-        int sleepCycleDuration = 90;
+        // Since we have a changing list length let's make sure there aren't any unecssary valeus
         mTimes.clear();
-        for (int i = minNumberOfSleepCycles; i <= maxNumberOfSleepCycles; i++) {
+        for (int i = MIN_CYCLES; i <= MAX_CYCLES; i++) {
             int sleepTime;
             if (!wakeUpTimes) {
-                sleepTime = time - (i * sleepCycleDuration);
+                sleepTime = time - (i * SLEEP_CYCLE_DURATION);
                 if (sleepTime < 0) {
                     sleepTime = (24 * 60) + sleepTime;
                 }
             } else {
-                sleepTime = time + (i * sleepCycleDuration);
+                sleepTime = time + (i * SLEEP_CYCLE_DURATION);
                 int hours = sleepTime / 60;
                 int minutes = sleepTime - (hours * 60);
                 if (minutes >= 60) {
@@ -133,7 +147,7 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
     }
 
     /**
-     * @return Current time on clock in mintues
+     * @return Current time on clock in minutes
      */
     public int getTime() {
         return mTimePicker.getCurrentHour() * 60 + mTimePicker.getCurrentMinute();
@@ -145,9 +159,12 @@ public class MainActivity extends ActionBarActivity implements TimePicker.OnTime
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // Don't allow user to set alarm if it is showing wake up times
         ToggleButton button = (ToggleButton) findViewById(R.id.wake_up_switch);
-        if (button.isActivated()) return;
+        // Don't allow user to set alarm if it is showing wake up times
+        if (button.isChecked()) {
+            Log.i(TAG, "Can't set alarm for sleep times");
+            return;
+        }
 
         TextView timeValueView = (TextView) view.findViewById(R.id.time_value);
         String timeString = timeValueView.getText().toString();

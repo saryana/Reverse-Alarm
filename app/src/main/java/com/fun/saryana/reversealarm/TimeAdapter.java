@@ -53,7 +53,7 @@ public class TimeAdapter extends ArrayAdapter<Integer> {
         // Get and set the time
         TextView timeDisplay = (TextView) contextView.findViewById(R.id.time_value);
         TextView numSleepCycles = (TextView) contextView.findViewById(R.id.number_of_sleep_cycles);
-        numSleepCycles.setText(String.valueOf(position + 3));
+        numSleepCycles.setText(String.valueOf(position + MainActivity.MIN_CYCLES));
         timeDisplay.setText(TimeUtil.format24to12(time));
 
         return contextView;
