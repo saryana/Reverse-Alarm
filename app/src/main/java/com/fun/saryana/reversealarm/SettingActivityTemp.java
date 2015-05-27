@@ -31,11 +31,20 @@ public class SettingActivityTemp extends ActionBarActivity {
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         mMinSleepCycles.setText(String.valueOf(mSharedPrefs.getInt(MainActivity.MIN_CYCLES_TEXT, 3)));
-        mMaxSleepCycles.setText(String.valueOf(mSharedPrefs.getInt(MainActivity.MAX_CYCLES_TEXT, 3)));
+        mMaxSleepCycles.setText(String.valueOf(mSharedPrefs.getInt(MainActivity.MAX_CYCLES_TEXT, 7)));
         mSleepCycleDuration.setText(String.valueOf(mSharedPrefs.getInt(MainActivity.SLEEP_CYCLE_DURATION_TEXT, 90)));
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSharedPrefs.edit()
+                .putInt(MainActivity.MIN_CYCLES_TEXT, Integer.valueOf(mMinSleepCycles.getText().toString()))
+                .putInt(MainActivity.MAX_CYCLES_TEXT, Integer.valueOf(mMaxSleepCycles.getText().toString()))
+                .putInt(MainActivity.SLEEP_CYCLE_DURATION_TEXT, Integer.valueOf(mSleepCycleDuration.getText().toString()))
+                .apply();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

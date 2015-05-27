@@ -64,9 +64,16 @@ public class MainActivity
 
         // Handle the TimePicker
         mTimePicker = (TimePicker) findViewById(R.id.time_picker);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         mTimePicker.setOnTimeChangedListener(this);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        MIN_CYCLES = sharedPreferences.getInt(MIN_CYCLES_TEXT, 4);
+        MIN_CYCLES = sharedPreferences.getInt(MIN_CYCLES_TEXT, 3);
         MAX_CYCLES = sharedPreferences.getInt(MAX_CYCLES_TEXT, 7);
         SLEEP_CYCLE_DURATION = sharedPreferences.getInt(SLEEP_CYCLE_DURATION_TEXT, 90);
 
